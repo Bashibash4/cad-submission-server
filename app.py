@@ -3,23 +3,27 @@ from werkzeug.utils import secure_filename
 from google.oauth2 import service_account
 from googleapiclient.discovery import build
 from googleapiclient.http import MediaFileUpload
-import os, datetime
+import os, datetime, json
 
 # Setup
 app = Flask(__name__)
 UPLOAD_FOLDER = 'cad_uploads'
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
-# Google Config
-SERVICE_ACCOUNT_FILE = 'etc/secrets/service_account.json'
-DRIVE_FOLDER_ID = 'YOUR_DRIVE_FOLDER_ID'
-SPREADSHEET_ID = 'YOUR_SHEET_ID'
-SHEET_NAME = 'Sheet1'
-
-credentials = service_account.Credentials.from_service_account_file(
-    SERVICE_ACCOUNT_FILE,
-    scopes=['https://www.googleapis.com/auth/drive', 'https://www.googleapis.com/auth/spreadsheets']
+# Load credentials from environment variable
+creds_dict = json.loads(os.environ['GOOGLE_CREDENTIALS_JSON'])
+credentials = service_account.Credentials.from_service_account_info(
+    creds_dict,
+    scopes=[
+        'https://www.googleapis.com/auth/drive',
+        'https://www.googleapis.com/auth/spreadsheets'
+    ]
 )
+
+# Google Config (use your real IDs here)
+DRIVE_FOLDER_ID = '1wOzYjnZ77ryz4wR6MeRa8Q6oFVGPHcc7'
+SPREADSHEET_ID = '1g_odFKVOighAK59B0osOjfryN74xKGrcmhOTTWZ4gUU'
+SHEET_NAME = 'CAD Orders'
 
 @app.route('/submit-cad-idea', methods=['POST'])
 def submit_cad_idea():
